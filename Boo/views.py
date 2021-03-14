@@ -84,7 +84,7 @@ def resetpass(request):
             access_token = jwt.encode(payload, secret_key)
 
             context = {
-                "data": access_token.decode("utf-8"),
+                "data": access_token,
                 "name": str(_data.name),
             }
 
@@ -116,7 +116,7 @@ def signup(request):
             }
             access_token = jwt.encode(payload, secret_key)
 
-            context = {"data": access_token.decode("utf-8"), "name": str(data.name)}
+            context = {"data": access_token, "name": str(data.name)}
 
         else:
             context = {"data": "this email exist", "name": ""}
@@ -150,14 +150,18 @@ def login(request):
             }
             access_token = jwt.encode(payload, secret_key)
 
-            context = {"data": access_token.decode("utf-8"), "name": str(user.name)}
+            context = {
+                "data": access_token,
+                "name": str(user.name),
+            }
 
         return JsonResponse(context, safe=False)
 
 
 def all_categories(request):
     access_token = request.headers["authorization"]
-    user_id = jwt.decode(access_token, secret_key)["id"]
+
+    user_id = jwt.decode(access_token, secret_key, algorithms="HS256")["id"]
 
     data = Category.objects.filter(user__id=user_id).all()
     list_data = []
@@ -180,7 +184,7 @@ def add_category(request):
         category_name = new_category["name"]
         token = new_category["token"]
 
-        user_id = jwt.decode(token, secret_key)["id"]
+        user_id = jwt.decode(token, secret_key, algorithms="HS256")["id"]
 
         data = Category(category_name=category_name, user_id=user_id)
         data.save()
