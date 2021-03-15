@@ -137,7 +137,7 @@ def login(request):
 
         user = User.objects.filter(email=email).first()
 
-        if len(str(user.id)) == 0:
+        if user is None:
             context = {"data": "account not exist", "name": ""}
 
         elif user.password != hash_password:
